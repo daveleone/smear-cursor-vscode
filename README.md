@@ -20,7 +20,6 @@ A faithful Visual Studio Code port of [smear-cursor.nvim](https://github.com/sph
 
 <p>
   <a href="https://marketplace.visualstudio.com/items?itemName=davellen.smear-cursor-vscode"><img src="https://vsmarketplacebadges.dev/installs-short/davellen.smear-cursor-vscode.svg?style=for-the-badge&label=Marketplace%20installs&labelColor=101010&color=e2e2e2" alt="VS Code Marketplace installs" /></a>&nbsp;&nbsp;
-  <a href="https://open-vsx.org/extension/davellen/smear-cursor-vscode"><img src="https://img.shields.io/open-vsx/dt/davellen/smear-cursor-vscode?style=for-the-badge&label=Open%20VSX%20downloads&labelColor=101010&color=e2e2e2" alt="Open VSX downloads" /></a>
 </p>
 
 </div>
