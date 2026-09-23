@@ -179,7 +179,7 @@ npm test          # compile and run the unit tests
 npm run package   # build a .vsix
 ```
 
-Press <kbd>F5</kbd> in VS Code to launch an Extension Development Host with the extension loaded. Every push to `main` and every pull request builds the `.vsix` on GitHub Actions and uploads it as a workflow artifact.
+Press <kbd>F5</kbd> in VS Code to launch an Extension Development Host with the extension loaded. Every push to `main` and every pull request builds the `.vsix` on GitHub Actions. Releases are automatic and follow [Conventional Commits](https://www.conventionalcommits.org): on `main`, a `feat:` commit releases a new minor version, `fix:` or `perf:` a patch, and a breaking change (`feat!:` or a `BREAKING CHANGE:` footer) a major one, with the `.vsix` attached to the GitHub release. Other types (`chore:`, `docs:`, `ci:`…) do not release. Versions come from the git tags, so `package.json` needs no manual bump.
 
 | File | Role |
 | --- | --- |

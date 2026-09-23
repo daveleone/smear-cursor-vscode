@@ -8,3 +8,4 @@ tsconfig.json
 .gitignore
 .github/**
 assets/images/**
+scripts/**

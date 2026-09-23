@@ -1,4 +1,7 @@
-name: Build VSIX
+name: Build and release VSIX
+
+# Releases are automatic: every push to main computes the next version from the Conventional
+# Commits since the last release (see scripts/next-version.mjs), then tags and publishes it.
 
 on:
   push:
@@ -8,11 +11,12 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: read
+  contents: write
 
 concurrency:
   group: smear-cursor-build-${{ github.ref }}
-  cancel-in-progress: true
+  # Never cancel a run on main halfway through a release
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
   build:
@@ -22,6 +26,9 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+        with:
+          # Tags and history are needed to compute the next version
+          fetch-depth: 0
 
       - name: Set up Node.js
         uses: actions/setup-node@v4
@@ -35,20 +42,44 @@ jobs:
       - name: Compile and test
         run: npm test
 
-      - name: Read extension metadata
-        id: metadata
+      - name: Compute version
+        id: version
         shell: bash
         run: |
+          NEXT="$(node scripts/next-version.mjs)"
+          if [ -n "$NEXT" ] && [ "$GITHUB_REF" = "refs/heads/main" ] && [ "$GITHUB_EVENT_NAME" != "pull_request" ]; then
+            RELEASE=true
+            npm version "$NEXT" --no-git-tag-version --allow-same-version
+          else
+            RELEASE=false
+          fi
           VERSION="$(node -p "require('./package.json').version")"
+          echo "Version ${VERSION}, release: ${RELEASE}"
+          echo "release=${RELEASE}" >> "$GITHUB_OUTPUT"
+          echo "tag=v${VERSION}" >> "$GITHUB_OUTPUT"
           echo "file=smear-cursor-vscode-${VERSION}.vsix" >> "$GITHUB_OUTPUT"
 
       - name: Package VSIX
-        run: npx vsce package --out "${{ steps.metadata.outputs.file }}"
+        run: npx vsce package --out "${{ steps.version.outputs.file }}"
 
       - name: Upload VSIX artifact
         uses: actions/upload-artifact@v4
         with:
           name: smear-cursor-vsix-${{ github.sha }}
-          path: ${{ steps.metadata.outputs.file }}
+          path: ${{ steps.version.outputs.file }}
           retention-days: 30
           if-no-files-found: error
+
+      - name: Create GitHub release
+        if: steps.version.outputs.release == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ steps.version.outputs.tag }}
+          FILE: ${{ steps.version.outputs.file }}
+        shell: bash
+        run: |
+          gh release create "$TAG" "$FILE" \
+            --repo "$GITHUB_REPOSITORY" \
+            --target "$GITHUB_SHA" \
+            --title "Smear Cursor $TAG" \
+            --generate-notes
