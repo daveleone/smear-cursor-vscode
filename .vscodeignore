@@ -6,3 +6,5 @@ out/test/**
 **/*.ts
 tsconfig.json
 .gitignore
+.github/**
+assets/images/**

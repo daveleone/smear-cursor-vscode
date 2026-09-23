@@ -1,10 +1,18 @@
 {
-  "name": "smear-cursor",
-  "displayName": "Smear Cursor",
-  "description": "Animate the cursor with a smear effect, a port of smear-cursor.nvim for VS Code.",
+  "name": "smear-cursor-vscode",
+  "displayName": "Smear Cursor for Visual Studio Code",
+  "description": "sphamba's smear-cursor.nvim ported to Visual Studio Code: animate the cursor with a smear effect.",
   "version": "0.1.0",
-  "publisher": "davideleone",
+  "publisher": "davellen",
   "license": "GPL-3.0-or-later",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/daveleone/smear-cursor-vscode"
+  },
+  "bugs": {
+    "url": "https://github.com/daveleone/smear-cursor-vscode/issues"
+  },
+  "homepage": "https://github.com/daveleone/smear-cursor-vscode",
   "engines": {
     "vscode": "^1.85.0"
   },
@@ -13,9 +21,10 @@
     "Visualization"
   ],
   "keywords": [
+    "smear",
     "cursor",
     "animation",
-    "smear",
+    "neovim",
     "neovide",
     "smooth caret"
   ],
@@ -379,7 +388,7 @@
     "compile": "tsc -p .",
     "watch": "tsc -watch -p .",
     "test": "npm run compile && node --test \"out/test/**/*.test.js\"",
-    "package": "vsce package --allow-missing-repository",
+    "package": "vsce package",
     "vscode:prepublish": "npm run compile"
   },
   "devDependencies": {
