@@ -1,7 +1,8 @@
 name: Build and release VSIX
 
 # Releases are automatic: every push to main computes the next version from the Conventional
-# Commits since the last release (see scripts/next-version.mjs), then tags and publishes it.
+# Commits since the last release (see scripts/next-version.mjs), publishes it to the VS Code
+# Marketplace and Open VSX, then tags it and creates the GitHub release.
 
 on:
   push:
@@ -69,6 +70,34 @@ jobs:
           path: ${{ steps.version.outputs.file }}
           retention-days: 30
           if-no-files-found: error
+
+      # Publishing skips versions that already exist, so a run that failed halfway can be retried.
+      # A missing token skips its store with a warning instead of failing the release.
+      - name: Publish to VS Code Marketplace
+        if: steps.version.outputs.release == 'true'
+        env:
+          VSCE_PAT: ${{ secrets.VSCE_PAT }}
+          FILE: ${{ steps.version.outputs.file }}
+        shell: bash
+        run: |
+          if [ -z "$VSCE_PAT" ]; then
+            echo "::warning::VSCE_PAT secret is not set, skipping the VS Code Marketplace"
+            exit 0
+          fi
+          npx vsce publish --packagePath "$FILE" --skip-duplicate
+
+      - name: Publish to Open VSX
+        if: steps.version.outputs.release == 'true'
+        env:
+          OVSX_PAT: ${{ secrets.OPVSX_PAT }}
+          FILE: ${{ steps.version.outputs.file }}
+        shell: bash
+        run: |
+          if [ -z "$OVSX_PAT" ]; then
+            echo "::warning::OPVSX_PAT secret is not set, skipping Open VSX"
+            exit 0
+          fi
+          npx ovsx publish "$FILE" --pat "$OVSX_PAT" --skip-duplicate
 
       - name: Create GitHub release
         if: steps.version.outputs.release == 'true'
