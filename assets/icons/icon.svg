@@ -1,0 +1,62 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" width="256" height="256">
+  <defs>
+    <linearGradient id="background" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#1c1c1c"/>
+      <stop offset="1" stop-color="#101010"/>
+    </linearGradient>
+    <linearGradient id="smear" gradientUnits="userSpaceOnUse" x1="54" y1="54" x2="192" y2="180">
+      <stop offset="0" stop-color="#ffffff" stop-opacity="0"/>
+      <stop offset="0.35" stop-color="#ffffff" stop-opacity="0.1"/>
+      <stop offset="0.7" stop-color="#ffffff" stop-opacity="0.45"/>
+      <stop offset="1" stop-color="#ffffff"/>
+    </linearGradient>
+    <linearGradient id="cursor" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#ffffff"/>
+      <stop offset="1" stop-color="#e2e2e2"/>
+    </linearGradient>
+    <clipPath id="tile">
+      <rect x="8" y="8" width="240" height="240" rx="52"/>
+    </clipPath>
+  </defs>
+
+  <rect x="8" y="8" width="240" height="240" rx="52" fill="url(#background)"/>
+
+  <g clip-path="url(#tile)">
+    <!-- Code, colored like the Dark Modern theme: keyword, variable, function, string, number, comment -->
+    <g opacity="0.85">
+      <rect x="40" y="44" width="34" height="12" rx="6" fill="#569cd6"/>
+      <rect x="80" y="44" width="40" height="12" rx="6" fill="#9cdcfe"/>
+      <rect x="126" y="44" width="44" height="12" rx="6" fill="#dcdcaa"/>
+
+      <rect x="40" y="72" width="26" height="12" rx="6" fill="#c586c0"/>
+      <rect x="72" y="72" width="48" height="12" rx="6" fill="#9cdcfe"/>
+      <rect x="126" y="72" width="54" height="12" rx="6" fill="#ce9178"/>
+
+      <rect x="60" y="100" width="40" height="12" rx="6" fill="#dcdcaa"/>
+      <rect x="106" y="100" width="30" height="12" rx="6" fill="#9cdcfe"/>
+      <rect x="142" y="100" width="38" height="12" rx="6" fill="#b5cea8"/>
+
+      <rect x="60" y="128" width="34" height="12" rx="6" fill="#c586c0"/>
+      <rect x="100" y="128" width="28" height="12" rx="6" fill="#9cdcfe"/>
+
+      <rect x="40" y="184" width="84" height="12" rx="6" fill="#6a9955"/>
+    </g>
+
+    <!-- Smear: the trailing corner lags far behind, its edges meet the cursor's outer corners -->
+    <polygon points="54,54 213.5,148.5 213.5,211.5 170.5,211.5" fill="url(#smear)"/>
+
+    <!-- Particles -->
+    <g fill="#ffffff">
+      <rect x="150" y="116" width="8" height="8" rx="2" opacity="0.7"/>
+      <rect x="128" y="166" width="7" height="7" rx="1.5" opacity="0.55"/>
+      <rect x="116" y="104" width="6" height="6" rx="1.5" opacity="0.4"/>
+      <rect x="98" y="136" width="5" height="5" rx="1" opacity="0.3"/>
+      <rect x="84" y="94" width="4" height="4" rx="1" opacity="0.2"/>
+    </g>
+  </g>
+
+  <!-- Block cursor -->
+  <rect x="170" y="148" width="44" height="64" rx="2" fill="url(#cursor)"/>
+
+  <rect x="8.5" y="8.5" width="239" height="239" rx="51.5" fill="none" stroke="#ffffff" stroke-opacity="0.06"/>
+</svg>

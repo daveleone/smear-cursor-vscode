@@ -2,6 +2,11 @@
   "name": "smear-cursor-vscode",
   "displayName": "Smear Cursor for Visual Studio Code",
   "description": "sphamba's smear-cursor.nvim ported to Visual Studio Code: animate the cursor with a smear effect.",
+  "icon": "assets/icons/icon.png",
+  "galleryBanner": {
+    "color": "#101010",
+    "theme": "dark"
+  },
   "version": "0.1.0",
   "publisher": "davellen",
   "license": "GPL-3.0-or-later",
