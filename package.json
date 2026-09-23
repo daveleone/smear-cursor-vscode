@@ -1,0 +1,391 @@
+{
+  "name": "smear-cursor",
+  "displayName": "Smear Cursor",
+  "description": "Animate the cursor with a smear effect, a port of smear-cursor.nvim for VS Code.",
+  "version": "0.1.0",
+  "publisher": "davideleone",
+  "license": "GPL-3.0-or-later",
+  "engines": {
+    "vscode": "^1.85.0"
+  },
+  "categories": [
+    "Other",
+    "Visualization"
+  ],
+  "keywords": [
+    "cursor",
+    "animation",
+    "smear",
+    "neovide",
+    "smooth caret"
+  ],
+  "main": "./out/src/extension.js",
+  "activationEvents": [
+    "onStartupFinished"
+  ],
+  "contributes": {
+    "commands": [
+      {
+        "command": "smearCursor.toggle",
+        "title": "Toggle",
+        "category": "Smear Cursor"
+      },
+      {
+        "command": "smearCursor.enable",
+        "title": "Enable",
+        "category": "Smear Cursor"
+      },
+      {
+        "command": "smearCursor.disable",
+        "title": "Disable",
+        "category": "Smear Cursor"
+      }
+    ],
+    "configuration": [
+      {
+        "title": "General",
+        "order": 0,
+        "properties": {
+          "smearCursor.enabled": {
+            "type": "boolean",
+            "default": true,
+            "description": "Enable the smear cursor animation."
+          },
+          "smearCursor.disabledLanguages": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "default": [],
+            "description": "Language ids where the smear is disabled (nvim: `filetypes_disabled`)."
+          },
+          "smearCursor.modeDetection": {
+            "type": "string",
+            "enum": [
+              "auto",
+              "cursorStyle",
+              "off"
+            ],
+            "enumDescriptions": [
+              "Use `cursorStyle` when a Vim/Neovim extension is active, `off` otherwise.",
+              "Infer the mode from the cursor style: line = insert, underline = replace, block = normal.",
+              "Always use normal mode parameters."
+            ],
+            "default": "auto",
+            "description": "How to determine the editing mode, which selects the `*InsertMode` parameters and the `smearInsertMode` / `smearReplaceMode` toggles."
+          },
+          "smearCursor.cursorShape": {
+            "type": "string",
+            "enum": [
+              "auto",
+              "block",
+              "verticalBar",
+              "horizontalBar"
+            ],
+            "enumDescriptions": [
+              "Follow the editor cursor style (including changes made by Vim extensions).",
+              "Always animate a block.",
+              "Always animate a vertical bar.",
+              "Always animate a horizontal bar."
+            ],
+            "default": "auto",
+            "description": "Shape of the animated cursor (nvim: `vertical_bar_cursor`, `vertical_bar_cursor_insert_mode`, `horizontal_bar_cursor_replace_mode`)."
+          },
+          "smearCursor.cursorColor": {
+            "type": "string",
+            "default": "",
+            "markdownDescription": "Smear color. Empty uses the theme's `editorCursor.foreground`. Accepts a CSS color (`#d3cdc3`, `rgb(...)`), a theme color id (`terminal.ansiRed`), or `none` to match the text color at the target position."
+          },
+          "smearCursor.cursorColorInsertMode": {
+            "type": "string",
+            "default": "",
+            "markdownDescription": "Smear color in insert mode. Empty falls back to `#smearCursor.cursorColor#`."
+          },
+          "smearCursor.smearBetweenEditors": {
+            "type": "boolean",
+            "default": true,
+            "description": "Smear when switching editors within the same editor group, starting from the same on-screen position (nvim: `smear_between_buffers`). Switching between groups always jumps."
+          },
+          "smearCursor.smearBetweenNeighborLines": {
+            "type": "boolean",
+            "default": true,
+            "markdownDescription": "Smear when moving within a line or to a neighbor line. Use `#smearCursor.minHorizontalDistanceSmear#` and `#smearCursor.minVerticalDistanceSmear#` for finer control."
+          },
+          "smearCursor.minHorizontalDistanceSmear": {
+            "type": "number",
+            "default": 0,
+            "minimum": 0,
+            "description": "Only smear when moving at least this many columns (or the vertical minimum)."
+          },
+          "smearCursor.minVerticalDistanceSmear": {
+            "type": "number",
+            "default": 0,
+            "minimum": 0,
+            "description": "Only smear when moving at least this many lines (or the horizontal minimum)."
+          },
+          "smearCursor.smearHorizontally": {
+            "type": "boolean",
+            "default": true,
+            "description": "Smear when moving horizontally."
+          },
+          "smearCursor.smearVertically": {
+            "type": "boolean",
+            "default": true,
+            "description": "Smear when moving vertically."
+          },
+          "smearCursor.smearDiagonally": {
+            "type": "boolean",
+            "default": true,
+            "description": "Smear when moving neither horizontally nor vertically."
+          },
+          "smearCursor.scrollBufferSpace": {
+            "type": "boolean",
+            "default": true,
+            "description": "When a cursor move scrolls the editor, draw the smear in buffer space (starting from the old line, clamped to the viewport) instead of screen space."
+          },
+          "smearCursor.smearInsertMode": {
+            "type": "boolean",
+            "default": true,
+            "description": "Smear in insert mode."
+          },
+          "smearCursor.smearReplaceMode": {
+            "type": "boolean",
+            "default": false,
+            "description": "Smear in replace mode."
+          },
+          "smearCursor.neverDrawOverTarget": {
+            "type": "boolean",
+            "default": false,
+            "description": "Never draw the smear over the target cell, so the character under the cursor stays visible."
+          },
+          "smearCursor.timeInterval": {
+            "type": "number",
+            "default": 17,
+            "minimum": 1,
+            "description": "Time between animation frames, in milliseconds."
+          },
+          "smearCursor.delayEventToSmear": {
+            "type": "number",
+            "default": 1,
+            "minimum": 0,
+            "description": "Time the cursor has to stay still before the animation starts, in milliseconds. Coalesces bursts of cursor events."
+          }
+        }
+      },
+      {
+        "title": "Smear dynamics",
+        "order": 1,
+        "properties": {
+          "smearCursor.stiffness": {
+            "type": "number",
+            "default": 0.6,
+            "minimum": 0,
+            "maximum": 1,
+            "description": "How fast the smear's head moves towards the target. 0: no movement, 1: instantaneous."
+          },
+          "smearCursor.trailingStiffness": {
+            "type": "number",
+            "default": 0.45,
+            "minimum": 0,
+            "maximum": 1,
+            "description": "How fast the smear's tail moves towards the target. 0: no movement, 1: instantaneous."
+          },
+          "smearCursor.anticipation": {
+            "type": "number",
+            "default": 0.2,
+            "minimum": 0,
+            "description": "Initial velocity factor in the direction opposite to the target."
+          },
+          "smearCursor.damping": {
+            "type": "number",
+            "default": 0.85,
+            "minimum": 0,
+            "maximum": 1,
+            "description": "Velocity reduction over time. 0: no reduction (bouncy), 1: full reduction."
+          },
+          "smearCursor.trailingExponent": {
+            "type": "number",
+            "default": 3,
+            "minimum": 0,
+            "description": "Controls whether middle points are closer to the head or the tail. < 1: closer to the tail, > 1: closer to the head."
+          },
+          "smearCursor.distanceStopAnimating": {
+            "type": "number",
+            "default": 0.1,
+            "exclusiveMinimum": 0,
+            "description": "Stop animating when the smear's tail is within this distance (in characters) from the target."
+          },
+          "smearCursor.maxLength": {
+            "type": "number",
+            "default": 25,
+            "minimum": 0,
+            "description": "Maximum smear length, in characters."
+          },
+          "smearCursor.stiffnessInsertMode": {
+            "type": "number",
+            "default": 0.5,
+            "minimum": 0,
+            "maximum": 1,
+            "markdownDescription": "`#smearCursor.stiffness#` in insert mode."
+          },
+          "smearCursor.trailingStiffnessInsertMode": {
+            "type": "number",
+            "default": 0.5,
+            "minimum": 0,
+            "maximum": 1,
+            "markdownDescription": "`#smearCursor.trailingStiffness#` in insert mode."
+          },
+          "smearCursor.dampingInsertMode": {
+            "type": "number",
+            "default": 0.9,
+            "minimum": 0,
+            "maximum": 1,
+            "markdownDescription": "`#smearCursor.damping#` in insert mode."
+          },
+          "smearCursor.trailingExponentInsertMode": {
+            "type": "number",
+            "default": 1,
+            "minimum": 0,
+            "markdownDescription": "`#smearCursor.trailingExponent#` in insert mode."
+          },
+          "smearCursor.maxLengthInsertMode": {
+            "type": "number",
+            "default": 1,
+            "minimum": 0,
+            "markdownDescription": "`#smearCursor.maxLength#` in insert mode."
+          },
+          "smearCursor.distanceStopAnimatingVerticalBar": {
+            "type": "number",
+            "default": 0.1,
+            "exclusiveMinimum": 0,
+            "markdownDescription": "`#smearCursor.distanceStopAnimating#` for a vertical bar moving vertically. nvim defaults to 0.875 because terminals cannot draw thin bars; VS Code draws them exactly."
+          }
+        }
+      },
+      {
+        "title": "Smear shape",
+        "order": 2,
+        "properties": {
+          "smearCursor.gradientExponent": {
+            "type": "number",
+            "default": 1,
+            "minimum": 0,
+            "description": "Longitudinal opacity gradient from head to tail. 0: no gradient, 1: linear, > 1: faster fade."
+          },
+          "smearCursor.volumeReductionExponent": {
+            "type": "number",
+            "default": 0.3,
+            "minimum": 0,
+            "maximum": 1,
+            "description": "How much a diagonal smear thins as it stretches. 0: no reduction, 1: full reduction."
+          },
+          "smearCursor.minimumVolumeFactor": {
+            "type": "number",
+            "default": 0.7,
+            "minimum": 0,
+            "maximum": 1,
+            "description": "Lower bound on the thinning of a diagonal smear. 0: no limit, 1: no reduction."
+          }
+        }
+      },
+      {
+        "title": "Particles",
+        "order": 3,
+        "properties": {
+          "smearCursor.particlesEnabled": {
+            "type": "boolean",
+            "default": false,
+            "markdownDescription": "Emit particles behind the moving cursor. Pairs well with `#smearCursor.neverDrawOverTarget#`."
+          },
+          "smearCursor.particleMaxNum": {
+            "type": "number",
+            "default": 100,
+            "minimum": 0,
+            "description": "Maximum number of live particles."
+          },
+          "smearCursor.particleSpread": {
+            "type": "number",
+            "default": 0.5,
+            "minimum": 0,
+            "maximum": 1,
+            "description": "Spread of emission around the cursor. 0: none, 1: over the entire cursor."
+          },
+          "smearCursor.particlesPerSecond": {
+            "type": "number",
+            "default": 200,
+            "minimum": 0,
+            "description": "Particles emitted per second while moving."
+          },
+          "smearCursor.particlesPerLength": {
+            "type": "number",
+            "default": 1,
+            "minimum": 0,
+            "description": "Particles emitted per character width travelled."
+          },
+          "smearCursor.particleMaxLifetime": {
+            "type": "number",
+            "default": 300,
+            "minimum": 0,
+            "description": "Maximum particle lifetime, in milliseconds."
+          },
+          "smearCursor.particleLifetimeDistributionExponent": {
+            "type": "number",
+            "default": 5,
+            "minimum": 0,
+            "description": "Higher values make short-lived particles more common."
+          },
+          "smearCursor.particleMaxInitialVelocity": {
+            "type": "number",
+            "default": 10,
+            "minimum": 0,
+            "description": "Maximum random initial velocity, in character widths per second."
+          },
+          "smearCursor.particleVelocityFromCursor": {
+            "type": "number",
+            "default": 0.2,
+            "minimum": 0,
+            "maximum": 1,
+            "description": "Fraction of the cursor velocity inherited by new particles."
+          },
+          "smearCursor.particleRandomVelocity": {
+            "type": "number",
+            "default": 100,
+            "minimum": 0,
+            "description": "Random velocity jitter, in character widths per second."
+          },
+          "smearCursor.particleDamping": {
+            "type": "number",
+            "default": 0.2,
+            "minimum": 0,
+            "maximum": 1,
+            "description": "Particle velocity reduction over time."
+          },
+          "smearCursor.particleGravity": {
+            "type": "number",
+            "default": 20,
+            "description": "Gravity, in character widths per second squared. Negative values make particles rise."
+          },
+          "smearCursor.minDistanceEmitParticles": {
+            "type": "number",
+            "default": 1.5,
+            "minimum": 0,
+            "description": "Minimum distance travelled per frame to emit particles, in character widths."
+          }
+        }
+      }
+    ]
+  },
+  "scripts": {
+    "compile": "tsc -p .",
+    "watch": "tsc -watch -p .",
+    "test": "npm run compile && node --test \"out/test/**/*.test.js\"",
+    "package": "vsce package --allow-missing-repository",
+    "vscode:prepublish": "npm run compile"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "@types/vscode": "~1.85.0",
+    "@vscode/vsce": "^3.0.0",
+    "typescript": "^5.9.0"
+  }
+}
