@@ -1,0 +1,54 @@
+name: Build VSIX
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: smear-cursor-build-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    name: Build Smear Cursor VSIX
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Compile and test
+        run: npm test
+
+      - name: Read extension metadata
+        id: metadata
+        shell: bash
+        run: |
+          VERSION="$(node -p "require('./package.json').version")"
+          echo "file=smear-cursor-vscode-${VERSION}.vsix" >> "$GITHUB_OUTPUT"
+
+      - name: Package VSIX
+        run: npx vsce package --out "${{ steps.metadata.outputs.file }}"
+
+      - name: Upload VSIX artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: smear-cursor-vsix-${{ github.sha }}
+          path: ${{ steps.metadata.outputs.file }}
+          retention-days: 30
+          if-no-files-found: error
