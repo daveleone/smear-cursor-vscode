@@ -16,11 +16,11 @@ A faithful Visual Studio Code port of [smear-cursor.nvim](https://github.com/sph
   <img src="https://img.shields.io/badge/VS%20Code-1.85%2B-e2e2e2?style=for-the-badge&labelColor=101010" alt="VS Code 1.85 or newer" />&nbsp;&nbsp;
   <a href="https://github.com/daveleone/smear-cursor-vscode/actions/workflows/build.yml"><img src="https://img.shields.io/github/actions/workflow/status/daveleone/smear-cursor-vscode/build.yml?branch=main&style=for-the-badge&label=build&labelColor=101010" alt="Build status" /></a>&nbsp;&nbsp;
   <a href="./LICENSE"><img src="https://img.shields.io/github/license/daveleone/smear-cursor-vscode?style=for-the-badge&labelColor=101010&color=b0b0b0" alt="GPL-3.0 License" /></a>
-  <a href="https://open-vsx.org/extension/davellen/smear-cursor-vscode"><img src="https://img.shields.io/open-vsx/dt/davellen/smear-cursor-vscode?style=for-the-badge&label=Open%20VSX%20downloads&labelColor=101010&color=e2e2e2" alt="Open VSX downloads" /></a>
 </p>
 
 <p>
   <a href="https://marketplace.visualstudio.com/items?itemName=davellen.smear-cursor-vscode"><img src="https://vsmarketplacebadges.dev/installs-short/davellen.smear-cursor-vscode.svg?style=for-the-badge&label=Marketplace%20installs&labelColor=101010&color=e2e2e2" alt="VS Code Marketplace installs" /></a>&nbsp;&nbsp;
+  <a href="https://open-vsx.org/extension/davellen/smear-cursor-vscode"><img src="https://img.shields.io/open-vsx/dt/davellen/smear-cursor-vscode?style=for-the-badge&label=Open%20VSX%20downloads&labelColor=101010&color=e2e2e2" alt="Open VSX downloads" /></a>
 </p>
 
 </div>
